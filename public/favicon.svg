@@ -1,0 +1,16 @@
+<svg width="32" height="32" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="orangeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFA500"/>
+      <stop offset="100%" stop-color="#FF8C00"/>
+    </linearGradient>
+  </defs>
+  <!-- Icon: Interlocking T + C -->
+  <g transform="translate(150, 150)">
+    <!-- The C -->
+    <path d="M -60,0 A60,60 0 0,1 60,0" fill="none" stroke="url(#orangeGrad)" stroke-width="20" stroke-linecap="round"/>
+    <!-- The T inside or overlapping -->
+    <line x1="0" y1="-60" x2="0" y2="30" stroke="url(#orangeGrad)" stroke-width="20" stroke-linecap="round"/>
+    <line x1="-35" y1="-60" x2="35" y2="-60" stroke="url(#orangeGrad)" stroke-width="20" stroke-linecap="round"/>
+  </g>
+</svg>
