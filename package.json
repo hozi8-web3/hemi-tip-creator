@@ -1,6 +1,6 @@
 {
     "name": "onchain-creator-tipping",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "Onchain Creator Tipping Platform on Hemi Network",
     "scripts": {
         "dev": "next dev",
