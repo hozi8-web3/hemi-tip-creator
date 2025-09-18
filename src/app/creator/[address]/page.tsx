@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { TipModal } from '@/components/TipModal'
 import { QRCodeGenerator } from '@/components/QRCodeGenerator'
 import { formatEther, formatAddress, timeAgo } from '@/lib/utils'
+import { formatUnits } from 'viem'
 import { SafeAppHeader } from '@/components/SafeAppHeader'
 import { SkeletonCard } from '@/components/PageLoader'
 import {
@@ -33,6 +34,7 @@ interface CreatorProfile {
   avatarURI: string
   totalTipsReceived: string
   tipCount: string
+  perTokenTotals?: Record<string, { total: string; symbol?: string | null; decimals?: number | null }>
 }
 
 interface Tip {
@@ -40,6 +42,8 @@ interface Tip {
   from: string
   amount: string
   token: string | null
+  tokenSymbol?: string | null
+  tokenDecimals?: number | null
   timestamp: string
   message: string
 }
@@ -59,6 +63,25 @@ export default function CreatorProfilePage() {
 
   useEffect(() => {
     if (address) {
+      // If we have prefetched data in sessionStorage (from leaderboard), use it immediately
+      try {
+        const raw = sessionStorage.getItem('prefetchedCreator')
+        if (raw) {
+          const parsed = JSON.parse(raw)
+          if (parsed?.address?.toLowerCase() === address.toLowerCase() && parsed.data) {
+            setProfile(parsed.data.profile)
+            setTips(parsed.data.tips || [])
+            setProfileLoading(false)
+            setTipsLoading(false)
+            // Fetch fresh data in background to update
+            fetchCreatorData()
+            return
+          }
+        }
+      } catch (e) {
+        // ignore parse errors
+      }
+
       fetchCreatorData()
     }
   }, [address])
@@ -195,16 +218,16 @@ export default function CreatorProfilePage() {
             animate={{ opacity: 1, y: 0 }}
             className="glass-card p-8 mb-8"
           >
-            <div className="flex flex-col md:flex-row items-start md:items-center space-y-6 md:space-y-0 md:space-x-8">
-              <Avatar className="w-32 h-32">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
+              <Avatar className="w-20 h-20 sm:w-32 sm:h-32">
                 <AvatarImage src={profile.avatarURI} alt={profile.username} />
-                <AvatarFallback className="text-4xl">{profile.username[0]}</AvatarFallback>
+                <AvatarFallback className="text-2xl sm:text-4xl">{profile.username[0]}</AvatarFallback>
               </Avatar>
 
               <div className="flex-1">
-                <h1 className="text-4xl font-bold text-white mb-2">{profile.username}</h1>
-                <div className="flex items-center space-x-2 mb-4">
-                  <span className="text-gray-400">{formatAddress(address)}</span>
+                <h1 className="text-2xl sm:text-4xl font-bold text-white mb-1 sm:mb-2">{profile.username}</h1>
+                <div className="flex items-center space-x-2 mb-3">
+                  <span className="text-gray-400 text-sm sm:text-base">{formatAddress(address)}</span>
                   <Button
                     size="sm"
                     variant="ghost"
@@ -212,40 +235,54 @@ export default function CreatorProfilePage() {
                     className="text-gray-400 hover:text-primary-400"
                   >
                     <Copy className="w-4 h-4" />
-                    {copied ? 'Copied!' : 'Copy'}
+                    <span className="ml-1 text-sm">{copied ? 'Copied!' : 'Copy'}</span>
                   </Button>
                 </div>
-                <p className="text-gray-300 text-lg mb-6">{profile.bio}</p>
+                <p className="text-gray-300 text-sm sm:text-lg mb-4 sm:mb-6 whitespace-pre-line">{profile.bio}</p>
 
                 <div className="flex flex-wrap gap-4">
                   <div className="text-center">
-                    <p className="text-3xl font-bold text-primary-400">
+                    <p className="text-xl sm:text-3xl font-bold text-primary-400">
                       {formatEther(profile.totalTipsReceived)}
                     </p>
-                    <p className="text-sm text-gray-400">Total Tips Received</p>
+                    <p className="text-xs sm:text-sm text-gray-400">Total Tips Received</p>
                   </div>
+                  {/* Token breakdown badges (per-token totals) */}
+                  {profile.perTokenTotals && Object.keys(profile.perTokenTotals).length > 0 && (
+                    <div className="flex items-center space-x-2">
+                      {Object.entries(profile.perTokenTotals).map(([tokenAddr, info]) => {
+                        const decimals = typeof info.decimals === 'number' ? info.decimals : 18
+                        const amountStr = info.total ? Number(formatUnits(BigInt(info.total || '0'), decimals)).toFixed(4) : '0.0000'
+                        return (
+                          <div key={tokenAddr} className="px-2 py-1 bg-gray-800/50 rounded text-sm text-gray-200">
+                            {amountStr} {info.symbol || tokenAddr.slice(0,6)}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
                   <div className="text-center">
-                    <p className="text-3xl font-bold text-white">{profile.tipCount}</p>
-                    <p className="text-sm text-gray-400">Number of Tips</p>
+                    <p className="text-xl sm:text-3xl font-bold text-white">{profile.tipCount}</p>
+                    <p className="text-xs sm:text-sm text-gray-400">Number of Tips</p>
                   </div>
                 </div>
               </div>
 
-              <div className="flex flex-col space-y-3">
+              <div className="flex flex-col space-y-2 w-full sm:w-auto">
                 {isConnected ? (
                   <Button
                     onClick={() => setShowTipModal(true)}
-                    className="bg-primary-500 hover:bg-primary-600 text-white px-8 py-3 text-lg orange-glow"
+                    className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 text-sm sm:text-lg orange-glow w-full sm:w-auto"
                   >
-                    <Zap className="w-5 h-5 mr-2" />
-                    Send Tip
+                    <Zap className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                    <span className="align-middle">Send Tip</span>
                   </Button>
                 ) : (
                   <ConnectButton.Custom>
                     {({ openConnectModal }) => (
                       <Button
                         onClick={openConnectModal}
-                        className="bg-primary-500 hover:bg-primary-600 text-white px-8 py-3 text-lg"
+                        className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 text-sm sm:text-lg w-full sm:w-auto"
                       >
                         Connect to Tip
                       </Button>
@@ -256,10 +293,10 @@ export default function CreatorProfilePage() {
                 <Button
                   variant="outline"
                   onClick={() => setShowQRCode(true)}
-                  className="border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white"
+                  className="border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white w-full sm:w-auto"
                 >
                   <QrCode className="w-4 h-4 mr-2" />
-                  QR Code
+                  <span className="text-sm">QR Code</span>
                 </Button>
               </div>
             </div>
@@ -401,7 +438,12 @@ export default function CreatorProfilePage() {
                         <div className="w-2 h-2 bg-primary-500 rounded-full"></div>
                         <div>
                           <p className="text-white font-medium">
-                            {formatEther(tip.amount)} from {formatAddress(tip.from)}
+                            {tip.token ? (
+                              // token tip: attempt to format using decimals if present on tip object
+                              tip.tokenDecimals ? `${(Number(tip.amount) / Math.pow(10, tip.tokenDecimals)).toFixed(4)} ${tip.tokenSymbol || ''}` : `${tip.amount} ${tip.token ? 'TOKEN' : ''}`
+                            ) : (
+                              formatEther(tip.amount)
+                            )} from {formatAddress(tip.from)}
                           </p>
                           {tip.message && (
                             <p className="text-gray-400 text-sm">{tip.message}</p>
