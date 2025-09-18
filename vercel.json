@@ -44,7 +44,7 @@
   "crons": [
     {
       "path": "/api/indexer",
-      "schedule": "0 */5 * * *"
+      0 0 * * *
     }
   ]
 }
