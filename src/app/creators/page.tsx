@@ -173,7 +173,7 @@ export default function CreatorsPage() {
 
         {/* Creators Grid */}
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full overflow-x-hidden">
             {[...Array(6)].map((_, i) => (
               <Card key={i} className="glass-card animate-pulse">
                 <CardContent className="p-6">
@@ -195,7 +195,7 @@ export default function CreatorsPage() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full overflow-x-hidden">
             {filteredCreators.map((creator, index) => (
               <motion.div
                 key={creator.address}
@@ -222,7 +222,7 @@ export default function CreatorsPage() {
                       </div>
                     </div>
                     
-                    <p className="text-gray-300 text-sm mb-4 line-clamp-2">
+                    <p className="text-gray-300 text-sm mb-4 line-clamp-2 whitespace-pre-line">
                       {creator.bio}
                     </p>
                     
