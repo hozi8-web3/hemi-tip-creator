@@ -1,4 +1,4 @@
-# 🎯 Onchain Creator Tipping Platform
+# 🎯 TipChain
 
 A modern, wallet-only tipping platform built on Hemi Network with secure onchain profile editing and MongoDB API integration.
 
@@ -18,8 +18,6 @@ A modern, wallet-only tipping platform built on Hemi Network with secure onchain
 ### 1. Install Dependencies
 ```bash
 npm install
-# Or use the setup script:
-npm run setup
 ```
 
 ### 2. Environment Setup
@@ -186,3 +184,13 @@ npx hardhat verify \
 - Event-driven blockchain indexing
 - Responsive design for all devices
 - Gas-optimized smart contracts
+
+
+## License
+
+This project is proprietary.
+
+See the `LICENSE` file for full copyright and usage terms.
+
+
+MADE BY HOZAIFA ALI aka HOZI FOR HEMI COMMUNITY AND CREATORS ❤️
