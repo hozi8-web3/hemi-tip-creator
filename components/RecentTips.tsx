@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { Card, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { formatEther, formatAddress, timeAgo } from '@/lib/utils'
+import { formatUnits } from 'viem'
 import { ExternalLink, MessageCircle, Zap } from 'lucide-react'
 
 interface Tip {
@@ -13,6 +14,8 @@ interface Tip {
   to: string
   amount: string
   token: string | null
+  tokenSymbol?: string | null
+  tokenDecimals?: number | null
   timestamp: string
   message: string
   creatorProfile?: {
@@ -121,7 +124,13 @@ export function RecentTips() {
                   
                   <div className="flex items-center space-x-2">
                     <span className="text-2xl font-bold text-primary-400">
-                      {formatEther(tip.amount)}
+                      {tip.token && tip.tokenDecimals ? (
+                        // token tip: format using token decimals and show symbol when available
+                        `${Number(formatUnits(BigInt(tip.amount), tip.tokenDecimals)).toFixed(4)} ${tip.tokenSymbol || ''}`
+                      ) : (
+                        // native ETH
+                        formatEther(tip.amount)
+                      )}
                     </span>
                     {tip.message && (
                       <>

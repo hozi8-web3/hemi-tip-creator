@@ -118,6 +118,8 @@ export async function GET(
         to: tip.to,
         amount: tip.amount,
         token: tip.token,
+        tokenSymbol: tip.tokenSymbol || null,
+        tokenDecimals: tip.tokenDecimals || null,
         timestamp: tip.timestamp,
         message: tip.message || ''
       }))
@@ -136,7 +138,9 @@ export async function GET(
       avatarURI: profile.avatarURI,
       socials: profile.socials || [],
       totalTipsReceived: profile.totalTipsReceived || '0',
-      tipCount: profile.tipCount || '0'
+      tipCount: profile.tipCount || '0',
+      // perTokenTotals is an object keyed by token address with { total, symbol, decimals }
+      perTokenTotals: profile.perTokenTotals || {}
     }
 
     // Get tips for this creator
@@ -153,6 +157,9 @@ export async function GET(
       to: tip.to,
       amount: tip.amount,
       token: tip.token,
+      // include token metadata for consistency with other endpoints
+      tokenSymbol: tip.tokenSymbol || null,
+      tokenDecimals: tip.tokenDecimals || null,
       timestamp: tip.timestamp,
       message: tip.message || ''
     }))

@@ -10,6 +10,7 @@ import { formatEther, formatAddress } from '@/lib/utils'
 import { SafeAppHeader } from '@/components/SafeAppHeader'
 import { Trophy, Medal, Award, Zap, TrendingUp, Users } from 'lucide-react'
 import Link from 'next/link'
+import { prefetchCreator } from '../../lib/prefetch'
 
 interface Creator {
   address: string
@@ -84,14 +85,14 @@ export default function LeaderboardPage() {
   const getRankIcon = (rank: number) => {
     switch (rank) {
       case 1:
-        return <Trophy className="w-6 h-6 text-yellow-500" />
+        return <Trophy className="w-4 h-4 sm:w-6 sm:h-6 text-yellow-500" />
       case 2:
-        return <Medal className="w-6 h-6 text-gray-400" />
+        return <Medal className="w-4 h-4 sm:w-6 sm:h-6 text-gray-400" />
       case 3:
-        return <Award className="w-6 h-6 text-amber-600" />
+        return <Award className="w-4 h-4 sm:w-6 sm:h-6 text-amber-600" />
       default:
         return (
-          <div className="w-6 h-6 rounded-full bg-gray-600 flex items-center justify-center text-xs font-bold text-white">
+          <div className="w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-gray-600 flex items-center justify-center text-xs font-bold text-white">
             {rank}
           </div>
         )
@@ -115,17 +116,17 @@ export default function LeaderboardPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
       <SafeAppHeader />
 
-      <div className="max-w-6xl mx-auto px-6 py-8">
+      <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-8">
         {/* Page Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
+          className="text-center mb-6 sm:mb-8"
         >
-          <h1 className="text-4xl font-bold mb-4">
+          <h1 className="text-2xl sm:text-4xl font-bold mb-2 sm:mb-4">
             <span className="gradient-text">Leaderboard</span>
           </h1>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+          <p className="text-gray-400 text-sm sm:text-lg max-w-2xl mx-auto px-4">
             Top creators ranked by total tips received. Support your favorites to help them climb the ranks!
           </p>
         </motion.div>
@@ -135,19 +136,19 @@ export default function LeaderboardPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="flex justify-center mb-8"
+          className="flex justify-center mb-6 sm:mb-8"
         >
-          <div className="flex bg-gray-800/50 rounded-lg p-1">
+          <div className="flex bg-gray-800/50 rounded-lg p-1 w-full max-w-sm sm:w-auto">
             {[
               { key: 'all', label: 'All Time' },
-              { key: 'month', label: 'This Month' },
-              { key: 'week', label: 'This Week' }
+              { key: 'month', label: 'Month' },
+              { key: 'week', label: 'Week' }
             ].map((option) => (
               <Button
                 key={option.key}
                 variant={timeframe === option.key ? 'default' : 'ghost'}
                 onClick={() => setTimeframe(option.key as any)}
-                className={`px-6 py-2 ${
+                className={`flex-1 sm:flex-none px-3 sm:px-6 py-2 text-xs sm:text-sm ${
                   timeframe === option.key
                     ? 'bg-primary-500 text-white'
                     : 'text-gray-400 hover:text-white'
@@ -159,93 +160,181 @@ export default function LeaderboardPage() {
           </div>
         </motion.div>
 
-        {/* Top 3 Podium */}
+        {/* Top 3 Podium - Mobile Optimized */}
         {!loading && creators.length >= 3 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
+            className="mb-8 sm:mb-12"
           >
-            {/* 2nd Place */}
-            <div className="md:order-1 flex flex-col items-center">
-              <Card className="glass-card w-full max-w-sm">
-                <CardContent className="p-6 text-center">
-                  <div className="relative mb-4">
-                    <Avatar className="w-20 h-20 mx-auto">
-                      <AvatarImage src={creators[1].avatarURI} alt={creators[1].username} />
-                      <AvatarFallback>{creators[1].username[0]}</AvatarFallback>
-                    </Avatar>
-                    <div className="absolute -top-2 -right-2">
-                      <Medal className="w-8 h-8 text-gray-400" />
+            {/* Mobile: Stack vertically, Desktop: Grid */}
+            <div className="block sm:hidden space-y-3">
+              {/* 1st Place - Mobile */}
+              <Card className="glass-card orange-glow-strong">
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="relative">
+                      <Avatar className="w-12 h-12">
+                        <AvatarImage src={creators[0].avatarURI} alt={creators[0].username} />
+                        <AvatarFallback>{creators[0].username[0]}</AvatarFallback>
+                      </Avatar>
+                      <Trophy className="absolute -top-1 -right-1 w-5 h-5 text-yellow-500" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <h3 className="text-lg font-semibold text-white">
+                          {creators[0].username}
+                        </h3>
+                        <div className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-2 py-0.5 rounded-full text-xs font-bold">
+                          #1
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <p className="text-xl font-bold text-primary-400">
+                          {formatEther(creators[0].totalTipsReceived)}
+                        </p>
+                        <p className="text-sm text-gray-400">
+                          {creators[0].tipCount} tips
+                        </p>
+                      </div>
                     </div>
                   </div>
-                  <h3 className="text-lg font-semibold text-white mb-1">
-                    {creators[1].username}
-                  </h3>
-                  <p className="text-2xl font-bold text-primary-400 mb-2">
-                    {formatEther(creators[1].totalTipsReceived)}
-                  </p>
-                  <p className="text-sm text-gray-400">
-                    {creators[1].tipCount} tips
-                  </p>
                 </CardContent>
               </Card>
+
+              {/* 2nd and 3rd Place - Mobile */}
+              <div className="grid grid-cols-2 gap-3">
+                <Card className="glass-card">
+                  <CardContent className="p-3">
+                    <div className="text-center">
+                      <div className="relative mb-2">
+                        <Avatar className="w-10 h-10 mx-auto">
+                          <AvatarImage src={creators[1].avatarURI} alt={creators[1].username} />
+                          <AvatarFallback>{creators[1].username[0]}</AvatarFallback>
+                        </Avatar>
+                        <Medal className="absolute -top-1 -right-1 w-4 h-4 text-gray-400" />
+                      </div>
+                      <h3 className="text-sm font-semibold text-white mb-1">
+                        {creators[1].username}
+                      </h3>
+                      <p className="text-lg font-bold text-primary-400 mb-1">
+                        {formatEther(creators[1].totalTipsReceived)}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {creators[1].tipCount} tips
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="glass-card">
+                  <CardContent className="p-3">
+                    <div className="text-center">
+                      <div className="relative mb-2">
+                        <Avatar className="w-10 h-10 mx-auto">
+                          <AvatarImage src={creators[2].avatarURI} alt={creators[2].username} />
+                          <AvatarFallback>{creators[2].username[0]}</AvatarFallback>
+                        </Avatar>
+                        <Award className="absolute -top-1 -right-1 w-4 h-4 text-amber-600" />
+                      </div>
+                      <h3 className="text-sm font-semibold text-white mb-1">
+                        {creators[2].username}
+                      </h3>
+                      <p className="text-lg font-bold text-primary-400 mb-1">
+                        {formatEther(creators[2].totalTipsReceived)}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {creators[2].tipCount} tips
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
 
-            {/* 1st Place */}
-            <div className="md:order-2 flex flex-col items-center">
-              <Card className="glass-card w-full max-w-sm orange-glow-strong">
-                <CardContent className="p-6 text-center">
-                  <div className="relative mb-4">
-                    <Avatar className="w-24 h-24 mx-auto">
-                      <AvatarImage src={creators[0].avatarURI} alt={creators[0].username} />
-                      <AvatarFallback>{creators[0].username[0]}</AvatarFallback>
-                    </Avatar>
-                    <div className="absolute -top-3 -right-3">
-                      <Trophy className="w-10 h-10 text-yellow-500" />
+            {/* Desktop: Original grid layout */}
+            <div className="hidden sm:grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* 2nd Place */}
+              <div className="md:order-1 flex flex-col items-center">
+                <Card className="glass-card w-full max-w-sm">
+                  <CardContent className="p-6 text-center">
+                    <div className="relative mb-4">
+                      <Avatar className="w-20 h-20 mx-auto">
+                        <AvatarImage src={creators[1].avatarURI} alt={creators[1].username} />
+                        <AvatarFallback>{creators[1].username[0]}</AvatarFallback>
+                      </Avatar>
+                      <div className="absolute -top-2 -right-2">
+                        <Medal className="w-8 h-8 text-gray-400" />
+                      </div>
                     </div>
-                  </div>
-                  <div className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-3 py-1 rounded-full text-sm font-bold mb-2">
-                    #1 CREATOR
-                  </div>
-                  <h3 className="text-xl font-semibold text-white mb-1">
-                    {creators[0].username}
-                  </h3>
-                  <p className="text-3xl font-bold text-primary-400 mb-2">
-                    {formatEther(creators[0].totalTipsReceived)}
-                  </p>
-                  <p className="text-sm text-gray-400">
-                    {creators[0].tipCount} tips
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
+                    <h3 className="text-lg font-semibold text-white mb-1">
+                      {creators[1].username}
+                    </h3>
+                    <p className="text-2xl font-bold text-primary-400 mb-2">
+                      {formatEther(creators[1].totalTipsReceived)}
+                    </p>
+                    <p className="text-sm text-gray-400">
+                      {creators[1].tipCount} tips
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
 
-            {/* 3rd Place */}
-            <div className="md:order-3 flex flex-col items-center">
-              <Card className="glass-card w-full max-w-sm">
-                <CardContent className="p-6 text-center">
-                  <div className="relative mb-4">
-                    <Avatar className="w-20 h-20 mx-auto">
-                      <AvatarImage src={creators[2].avatarURI} alt={creators[2].username} />
-                      <AvatarFallback>{creators[2].username[0]}</AvatarFallback>
-                    </Avatar>
-                    <div className="absolute -top-2 -right-2">
-                      <Award className="w-8 h-8 text-amber-600" />
+              {/* 1st Place */}
+              <div className="md:order-2 flex flex-col items-center">
+                <Card className="glass-card w-full max-w-sm orange-glow-strong">
+                  <CardContent className="p-6 text-center">
+                    <div className="relative mb-4">
+                      <Avatar className="w-24 h-24 mx-auto">
+                        <AvatarImage src={creators[0].avatarURI} alt={creators[0].username} />
+                        <AvatarFallback>{creators[0].username[0]}</AvatarFallback>
+                      </Avatar>
+                      <div className="absolute -top-3 -right-3">
+                        <Trophy className="w-10 h-10 text-yellow-500" />
+                      </div>
                     </div>
-                  </div>
-                  <h3 className="text-lg font-semibold text-white mb-1">
-                    {creators[2].username}
-                  </h3>
-                  <p className="text-2xl font-bold text-primary-400 mb-2">
-                    {formatEther(creators[2].totalTipsReceived)}
-                  </p>
-                  <p className="text-sm text-gray-400">
-                    {creators[2].tipCount} tips
-                  </p>
-                </CardContent>
-              </Card>
+                    <div className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-3 py-1 rounded-full text-sm font-bold mb-2">
+                      #1 CREATOR
+                    </div>
+                    <h3 className="text-xl font-semibold text-white mb-1">
+                      {creators[0].username}
+                    </h3>
+                    <p className="text-3xl font-bold text-primary-400 mb-2">
+                      {formatEther(creators[0].totalTipsReceived)}
+                    </p>
+                    <p className="text-sm text-gray-400">
+                      {creators[0].tipCount} tips
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* 3rd Place */}
+              <div className="md:order-3 flex flex-col items-center">
+                <Card className="glass-card w-full max-w-sm">
+                  <CardContent className="p-6 text-center">
+                    <div className="relative mb-4">
+                      <Avatar className="w-20 h-20 mx-auto">
+                        <AvatarImage src={creators[2].avatarURI} alt={creators[2].username} />
+                        <AvatarFallback>{creators[2].username[0]}</AvatarFallback>
+                      </Avatar>
+                      <div className="absolute -top-2 -right-2">
+                        <Award className="w-8 h-8 text-amber-600" />
+                      </div>
+                    </div>
+                    <h3 className="text-lg font-semibold text-white mb-1">
+                      {creators[2].username}
+                    </h3>
+                    <p className="text-2xl font-bold text-primary-400 mb-2">
+                      {formatEther(creators[2].totalTipsReceived)}
+                    </p>
+                    <p className="text-sm text-gray-400">
+                      {creators[2].tipCount} tips
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </motion.div>
         )}
@@ -259,18 +348,18 @@ export default function LeaderboardPage() {
           <Card className="glass-card">
             <CardContent className="p-0">
               {loading ? (
-                <div className="space-y-4 p-6">
+                <div className="space-y-4 p-3 sm:p-6">
                   {[...Array(10)].map((_, i) => (
-                    <div key={i} className="flex items-center space-x-4 animate-pulse">
-                      <div className="w-8 h-8 bg-gray-700 rounded" />
-                      <div className="w-12 h-12 bg-gray-700 rounded-full" />
+                    <div key={i} className="flex items-center space-x-3 sm:space-x-4 animate-pulse">
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-700 rounded" />
+                      <div className="w-8 h-8 sm:w-12 sm:h-12 bg-gray-700 rounded-full" />
                       <div className="flex-1">
-                        <div className="h-4 bg-gray-700 rounded mb-2" />
-                        <div className="h-3 bg-gray-700 rounded w-2/3" />
+                        <div className="h-3 sm:h-4 bg-gray-700 rounded mb-1 sm:mb-2" />
+                        <div className="h-2 sm:h-3 bg-gray-700 rounded w-2/3" />
                       </div>
                       <div className="text-right">
-                        <div className="h-6 bg-gray-700 rounded w-20 mb-1" />
-                        <div className="h-4 bg-gray-700 rounded w-16" />
+                        <div className="h-4 sm:h-6 bg-gray-700 rounded w-16 sm:w-20 mb-1" />
+                        <div className="h-3 sm:h-4 bg-gray-700 rounded w-12 sm:w-16" />
                       </div>
                     </div>
                   ))}
@@ -283,60 +372,78 @@ export default function LeaderboardPage() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.05 }}
-                      className="flex items-center space-x-4 p-6 hover:bg-gray-800/30 transition-colors"
+                      className="flex items-center space-x-2 sm:space-x-4 p-3 sm:p-6 hover:bg-gray-800/30 transition-colors"
+                      onMouseEnter={() => prefetchCreator(creator.address)}
+                      onFocus={() => prefetchCreator(creator.address)}
                     >
-                      <div className="flex items-center space-x-3">
+                      <div className="flex items-center space-x-2 sm:space-x-3">
                         {getRankIcon(index + 1)}
-                        <span className="text-gray-400 font-mono text-sm">
+                        <span className="text-gray-400 font-mono text-xs sm:text-sm">
                           #{index + 1}
                         </span>
                       </div>
                       
-                      <Avatar className="w-12 h-12">
+                      <Avatar className="w-8 h-8 sm:w-12 sm:h-12">
                         <AvatarImage src={creator.avatarURI} alt={creator.username} />
                         <AvatarFallback>{creator.username[0]}</AvatarFallback>
                       </Avatar>
                       
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2">
-                          <h3 className="text-lg font-semibold text-white">
-                            {creator.username}
+                        <div className="flex-1 min-w-0">
+                        <div className="flex items-center space-x-1 sm:space-x-2">
+                          <h3 className="text-sm sm:text-lg font-semibold text-white truncate">
+                            <Link
+                              href={`/creator/${creator.address}`}
+                              onClick={async (e) => {
+                                // Attempt to prefetch and store data for instant load
+                                e.preventDefault()
+                                const data = await prefetchCreator(creator.address)
+                                if (data) {
+                                  try { sessionStorage.setItem('prefetchedCreator', JSON.stringify({ address: creator.address, data })) } catch {}
+                                }
+                                // navigate
+                                window.location.href = `/creator/${creator.address}`
+                              }}
+                            >
+                              {creator.username}
+                            </Link>
                           </h3>
                           {index < 3 && (
-                            <div className={`px-2 py-1 rounded-full text-xs font-bold text-white ${getRankBadge(index + 1)}`}>
-                              TOP {index + 1}
+                            <div className={`px-1 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-bold text-white ${getRankBadge(index + 1)}`}>
+                              <span className="hidden sm:inline">TOP {index + 1}</span>
+                              <span className="sm:hidden">{index + 1}</span>
                             </div>
                           )}
                         </div>
-                        <p className="text-sm text-gray-400">
-                          {formatAddress(creator.address)} • {creator.tipCount} tips
+                        <p className="text-xs sm:text-sm text-gray-400 truncate">
+                          <span className="hidden sm:inline">{formatAddress(creator.address)} • </span>
+                          {creator.tipCount} tips
                         </p>
                       </div>
                       
-                      <div className="text-right">
-                        <p className="text-2xl font-bold text-primary-400">
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-sm sm:text-2xl font-bold text-primary-400">
                           {formatEther(creator.totalTipsReceived)}
                         </p>
-                        <p className="text-sm text-gray-400">Total Tips</p>
+                        <p className="text-xs sm:text-sm text-gray-400 hidden sm:block">Total Tips</p>
                       </div>
                       
                       <Link href={`/creator/${creator.address}`}>
                         <Button
                           size="sm"
-                          className="bg-primary-500 hover:bg-primary-600 text-white"
+                          className="bg-primary-500 hover:bg-primary-600 text-white px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm"
                         >
-                          <Zap className="w-4 h-4 mr-1" />
-                          Tip
+                          <Zap className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-1" />
+                          <span className="hidden sm:inline">Tip</span>
                         </Button>
                       </Link>
                     </motion.div>
                   )) : (
-                    <div className="text-center py-12">
-                      <Users className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                      <h3 className="text-xl font-semibold text-gray-400 mb-2">No creators found</h3>
-                      <p className="text-gray-500">Be the first to create a profile!</p>
+                    <div className="text-center py-8 sm:py-12 px-4">
+                      <Users className="w-12 h-12 sm:w-16 sm:h-16 text-gray-600 mx-auto mb-3 sm:mb-4" />
+                      <h3 className="text-lg sm:text-xl font-semibold text-gray-400 mb-2">No creators found</h3>
+                      <p className="text-sm sm:text-base text-gray-500 mb-3 sm:mb-0">Be the first to create a profile!</p>
                       <Link href="/dashboard">
-                        <Button className="mt-4 bg-primary-500 hover:bg-primary-600 text-white">
+                        <Button className="mt-2 sm:mt-4 bg-primary-500 hover:bg-primary-600 text-white text-sm sm:text-base px-4 sm:px-6">
                           Create Profile
                         </Button>
                       </Link>
@@ -353,37 +460,37 @@ export default function LeaderboardPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6"
+          className="mt-8 sm:mt-12 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-6"
         >
           <Card className="glass-card">
-            <CardContent className="p-6 text-center">
-              <Users className="w-8 h-8 text-primary-500 mx-auto mb-2" />
-              <p className="text-2xl font-bold text-white">{creators.length}</p>
-              <p className="text-sm text-gray-400">Total Creators</p>
+            <CardContent className="p-4 sm:p-6 text-center">
+              <Users className="w-6 h-6 sm:w-8 sm:h-8 text-primary-500 mx-auto mb-1 sm:mb-2" />
+              <p className="text-xl sm:text-2xl font-bold text-white">{creators.length}</p>
+              <p className="text-xs sm:text-sm text-gray-400">Total Creators</p>
             </CardContent>
           </Card>
           
           <Card className="glass-card">
-            <CardContent className="p-6 text-center">
-              <TrendingUp className="w-8 h-8 text-primary-500 mx-auto mb-2" />
-              <p className="text-2xl font-bold text-white">
+            <CardContent className="p-4 sm:p-6 text-center">
+              <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8 text-primary-500 mx-auto mb-1 sm:mb-2" />
+              <p className="text-xl sm:text-2xl font-bold text-white">
                 {creators.reduce((sum, creator) => sum + parseInt(creator.tipCount), 0)}
               </p>
-              <p className="text-sm text-gray-400">Total Tips</p>
+              <p className="text-xs sm:text-sm text-gray-400">Total Tips</p>
             </CardContent>
           </Card>
           
           <Card className="glass-card">
-            <CardContent className="p-6 text-center">
-              <Zap className="w-8 h-8 text-primary-500 mx-auto mb-2" />
-              <p className="text-2xl font-bold text-white">
+            <CardContent className="p-4 sm:p-6 text-center">
+              <Zap className="w-6 h-6 sm:w-8 sm:h-8 text-primary-500 mx-auto mb-1 sm:mb-2" />
+              <p className="text-xl sm:text-2xl font-bold text-white">
                 {formatEther(
                   creators.reduce((sum, creator) => 
                     sum + BigInt(creator.totalTipsReceived), BigInt(0)
                   ).toString()
                 )}
               </p>
-              <p className="text-sm text-gray-400">Total Volume</p>
+              <p className="text-xs sm:text-sm text-gray-400">Total Volume</p>
             </CardContent>
           </Card>
         </motion.div>

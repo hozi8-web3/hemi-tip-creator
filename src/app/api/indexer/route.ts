@@ -17,6 +17,11 @@ const CONTRACT_ABI = [
   "function getCreatorSocials(address) view returns (string[])"
 ]
 
+const ERC20_ABI = [
+  "function symbol() view returns (string)",
+  "function decimals() view returns (uint8)"
+]
+
 let client: MongoClient | null = null
 
 async function getMongoClient() {
@@ -73,11 +78,11 @@ export async function POST(request: NextRequest) {
         )
         break
         
-      case 'TipSent':
+      case 'TipSent': {
         const { from, to, amount, token, message, tipIndex, txHash } = data
-        
-        // Store tip
-        await tips.insertOne({
+
+        // Prepare tip document
+        const tipDoc: any = {
           txHash: txHash || `tip-${tipIndex}`,
           from: from.toLowerCase(),
           to: to.toLowerCase(),
@@ -86,19 +91,60 @@ export async function POST(request: NextRequest) {
           message: message || '',
           timestamp: Math.floor(Date.now() / 1000),
           createdAt: new Date()
-        })
-        
-        // Update creator stats
-        await profiles.updateOne(
-          { address: to.toLowerCase() },
-          {
-            $inc: {
-              totalTipsReceived: amount.toString(),
-              tipCount: 1
-            }
+        }
+
+        // If this is an ERC20 tip, try to fetch token metadata (symbol, decimals)
+        if (token && token !== ethers.ZeroAddress) {
+          try {
+            const tokenContract = new ethers.Contract(token, ERC20_ABI, provider)
+            const [symbol, decimals] = await Promise.all([
+              tokenContract.symbol(),
+              tokenContract.decimals()
+            ])
+            tipDoc.tokenSymbol = String(symbol)
+            tipDoc.tokenDecimals = Number(decimals)
+          } catch (err) {
+            console.warn('Failed to fetch token metadata for', token, err)
           }
-        )
+        }
+
+        // Store tip
+        await tips.insertOne(tipDoc)
+
+        // Update creator stats: only increment ETH totals for native ETH tips
+        if (!tipDoc.token) {
+          await profiles.updateOne(
+            { address: to.toLowerCase() },
+            {
+              $inc: {
+                totalTipsReceived: amount.toString(),
+                tipCount: 1
+              }
+            }
+          )
+        } else {
+          // For token tips, increment tipCount and maintain per-token totals on the profile
+          const tokenKey = token.toLowerCase()
+          // Use dynamic field updates: increment the perTokenTotals.<tokenAddress>.total and set symbol/decimals
+          const inc: any = { tipCount: 1 }
+          inc[`perTokenTotals.${tokenKey}.total`] = amount.toString()
+
+          const set: any = {}
+          if (tipDoc.tokenSymbol) set[`perTokenTotals.${tokenKey}.symbol`] = tipDoc.tokenSymbol
+          if (typeof tipDoc.tokenDecimals !== 'undefined') set[`perTokenTotals.${tokenKey}.decimals`] = tipDoc.tokenDecimals
+
+          await profiles.updateOne(
+            { address: to.toLowerCase() },
+            {
+              $inc: inc,
+              $set: set
+            },
+            { upsert: true }
+          )
+        }
+
         break
+      }
         
       default:
         return NextResponse.json({ error: 'Unknown event type' }, { status: 400 })

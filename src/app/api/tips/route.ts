@@ -40,6 +40,9 @@ export async function GET(request: NextRequest) {
           to: tip.to,
           amount: tip.amount,
           token: tip.token,
+          // include token metadata so frontend can format ERC20 tips
+          tokenSymbol: tip.tokenSymbol || null,
+          tokenDecimals: tip.tokenDecimals || null,
           timestamp: tip.timestamp,
           message: tip.message || '',
           creatorProfile: creatorProfile ? {
