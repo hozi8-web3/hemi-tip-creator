@@ -10,7 +10,6 @@ import { formatEther, formatAddress } from '@/lib/utils'
 import { SafeAppHeader } from '@/components/SafeAppHeader'
 import { Trophy, Medal, Award, Zap, TrendingUp, Users } from 'lucide-react'
 import Link from 'next/link'
-import { prefetchCreator } from '../../lib/prefetch'
 
 interface Creator {
   address: string
@@ -373,8 +372,6 @@ export default function LeaderboardPage() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.05 }}
                       className="flex items-center space-x-2 sm:space-x-4 p-3 sm:p-6 hover:bg-gray-800/30 transition-colors"
-                      onMouseEnter={() => prefetchCreator(creator.address)}
-                      onFocus={() => prefetchCreator(creator.address)}
                     >
                       <div className="flex items-center space-x-2 sm:space-x-3">
                         {getRankIcon(index + 1)}
@@ -388,21 +385,12 @@ export default function LeaderboardPage() {
                         <AvatarFallback>{creator.username[0]}</AvatarFallback>
                       </Avatar>
                       
-                        <div className="flex-1 min-w-0">
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-center space-x-1 sm:space-x-2">
                           <h3 className="text-sm sm:text-lg font-semibold text-white truncate">
                             <Link
                               href={`/creator/${creator.address}`}
-                              onClick={async (e) => {
-                                // Attempt to prefetch and store data for instant load
-                                e.preventDefault()
-                                const data = await prefetchCreator(creator.address)
-                                if (data) {
-                                  try { sessionStorage.setItem('prefetchedCreator', JSON.stringify({ address: creator.address, data })) } catch {}
-                                }
-                                // navigate
-                                window.location.href = `/creator/${creator.address}`
-                              }}
+                              className="hover:text-primary-400 transition-colors"
                             >
                               {creator.username}
                             </Link>
