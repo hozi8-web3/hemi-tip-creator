@@ -188,9 +188,9 @@ npx hardhat verify \
 
 ## License
 
-This project is proprietary.
+This project is licensed under the MIT License.
 
-See the `LICENSE` file for full copyright and usage terms.
+See the `LICENSE` file for more details.
 
 
 MADE BY HOZAIFA ALI aka HOZI FOR HEMI COMMUNITY AND CREATORS ❤️
