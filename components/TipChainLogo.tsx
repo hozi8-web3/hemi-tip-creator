@@ -1,3 +1,35 @@
+import React from 'react';
+
+interface ShinyTextProps {
+  text: string;
+  disabled?: boolean;
+  speed?: number;
+  className?: string;
+}
+
+const ShinyText: React.FC<ShinyTextProps> = ({ 
+  text, 
+  disabled = false, 
+  speed = 3, 
+  className = '' 
+}) => {
+  if (disabled) {
+    return <span className={className}>{text}</span>;
+  }
+
+  return (
+    <span
+      className={`inline-block animate-shiny-text bg-gradient-to-r from-primary-500 via-primary-300 to-primary-500 bg-[length:var(--shiny-width)_100%] bg-clip-text text-transparent ${className}`}
+      style={{
+        '--shiny-width': '100px',
+        animationDuration: `${speed}s`,
+      } as React.CSSProperties}
+    >
+      {text}
+    </span>
+  );
+};
+
 interface TipChainLogoProps {
   size?: number
   showText?: boolean
@@ -60,17 +92,16 @@ export function TipChainLogo({
         </g>
         {showText && (
           <>
-            {/* Text: TipChain */}
-            <text 
-              x="150" 
-              y="230" 
-              textAnchor="middle" 
-              fontSize={32 * scale} 
-              fontFamily="Montserrat, sans-serif" 
-              fill="#FFA500"
-            >
-              TipChain
-            </text>
+            {/* Text: TipChain with Shiny Effect */}
+            <foreignObject x="0" y="200" width="300" height="60">
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <ShinyText 
+                  text="TipChain" 
+                  className="font-bold text-2xl"
+                  speed={3}
+                />
+              </div>
+            </foreignObject>
             {showSubtext && (
               /* Subtext: on HEMI Network */
               <text 
@@ -90,7 +121,11 @@ export function TipChainLogo({
       
       {showText && (
         <div className="ml-2 md:ml-3">
-          <span className="text-lg md:text-xl font-bold gradient-text">TipChain</span>
+          <ShinyText 
+            text="TipChain" 
+            className="text-lg md:text-xl font-bold"
+            speed={3}
+          />
           {showSubtext && (
             <div className="text-xs text-gray-400 hidden md:block">on HEMI Network</div>
           )}
@@ -148,3 +183,5 @@ export function TipChainIcon({ size = 24, className = "" }: { size?: number, cla
     </svg>
   )
 }
+
+export default ShinyText;
