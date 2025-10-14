@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background Gradients -->
+    <defs>
+        <!-- Light Theme -->
+        <linearGradient id="lightGradient" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="100%" stop-color="#f3f4f6"/>
+        </linearGradient>
+        <!-- Dark Theme -->
+        <linearGradient id="darkGradient" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#111827"/>
+            <stop offset="100%" stop-color="#1f2937"/>
+        </linearGradient>
+        <!-- Accent Gradient -->
+        <linearGradient id="accentGradient" x1="0" y1="0" x2="1" y2="0" gradientUnits="objectBoundingBox">
+            <stop offset="0%" stop-color="#7C3AED"/>
+            <stop offset="100%" stop-color="#6D28D9"/>
+        </linearGradient>
+    </defs>
+    
+    <!-- Background -->
+    <rect width="1200" height="630" fill="url(#darkGradient)" class="theme-background"/>
+    
+    <!-- Main Container -->
+    <g transform="translate(60, 60)">
+        <!-- Logo Section -->
+        <g transform="translate(0, 0)">
+            <rect width="100" height="40" rx="8" fill="url(#accentGradient)"/>
+            <text x="120" y="28" font-family="Arial" font-size="24" fill="#ffffff" class="theme-text">TipChain</text>
+        </g>
+        
+        <!-- Creator Info -->
+        <g transform="translate(0, 120)">
+            <!-- Avatar Placeholder (gets replaced dynamically) -->
+            <circle cx="60" cy="60" r="60" fill="#4B5563"/>
+            <text id="creator-initial" x="60" y="80" font-family="Arial" font-size="48" fill="white" text-anchor="middle">C</text>
+            
+            <!-- Creator Name and Address -->
+            <g transform="translate(140, 0)">
+                <text id="creator-name" font-family="Arial" font-size="48" font-weight="bold" fill="#ffffff" class="theme-text">Creator Name</text>
+                <text id="wallet-address" x="0" y="80" font-family="monospace" font-size="18" fill="#9CA3AF">0x1234...5678</text>
+            </g>
+        </g>
+        
+        <!-- QR Code Section -->
+        <g transform="translate(800, 120)">
+            <!-- QR Code Placeholder -->
+            <rect width="280" height="280" fill="white" rx="16"/>
+            <g id="qr-code-container" transform="translate(20, 20)">
+                <!-- QR code gets inserted here dynamically -->
+            </g>
+            <text x="140" y="320" font-family="Arial" font-size="16" fill="#9CA3AF" text-anchor="middle">Scan to tip this creator</text>
+        </g>
+        
+        <!-- Call To Action -->
+        <g transform="translate(0, 400)">
+            <text font-family="Arial" font-size="64" font-weight="bold" fill="url(#accentGradient)">Tip this creator</text>
+            <text x="0" y="80" font-family="Arial" font-size="24" fill="#9CA3AF">Support with crypto tips on TipChain</text>
+        </g>
+    </g>
+</svg>
