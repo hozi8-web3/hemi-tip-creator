@@ -17,7 +17,10 @@ export async function generateMetadata({ params }: CreatorMetadataProps): Promis
 
   try {
     // Fetch creator data
-    const response = await fetch(`${baseUrl}/api/creator/${address}`)
+    const response = await fetch(`${baseUrl}/api/creator/${address}`, {
+      cache: 'no-store',
+      next: { revalidate: 0 }
+    })
     const data = await response.json()
     const profile = data.profile
 
