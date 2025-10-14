@@ -1,10 +1,6 @@
-import { Suspense } from 'react'
-import { CreatorPageClient } from './client'
-import { headers } from 'next/headers'
+'use client'
 
-// Enable streaming
-export const dynamic = 'force-dynamic'
-export const runtime = 'edge'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useParams } from 'next/navigation'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
@@ -12,7 +8,6 @@ import { useAccount } from 'wagmi'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Meteors } from '@/components/ui/meteors'
 import { TipModal } from '@/components/TipModal'
 import { QRCodeGenerator } from '@/components/QRCodeGenerator'
 import { formatEther, formatAddress, timeAgo } from '@/lib/utils'
@@ -53,19 +48,10 @@ interface Tip {
   message: string
 }
 
-import { Suspense } from 'react'
-import dynamic from 'next/dynamic'
-
-const CreatorPageClient = dynamic(() => import('./CreatorPageClient'), {
-  ssr: false
-})
-
 export default function CreatorProfilePage() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <CreatorPageClient />
-    </Suspense>
-  )
+  const params = useParams()
+  const address = params.address as string
+  const { isConnected } = useAccount()
 
   const [profile, setProfile] = useState<CreatorProfile | null>(null)
   const [tips, setTips] = useState<Tip[]>([])
@@ -200,7 +186,7 @@ export default function CreatorProfilePage() {
       )}
 
       <div className="max-w-6xl mx-auto px-6 py-8">
-        {/* Profile Header with Meteors */}
+        {/* Profile Header */}
         {profileLoading ? (
           <div className="glass-card p-8 mb-8 animate-pulse">
             <div className="flex flex-col md:flex-row items-start md:items-center space-y-6 md:space-y-0 md:space-x-8">
@@ -230,102 +216,88 @@ export default function CreatorProfilePage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="relative overflow-hidden glass-card p-8 mb-8"
+            className="glass-card p-8 mb-8"
           >
-            {/* Meteors Effect */}
-            <Meteors number={20} />
-            
-            {/* Profile Content */}
-            <div className="relative z-10">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
-                <Avatar className="w-20 h-20 sm:w-32 sm:h-32 ring-4 ring-primary-500/20">
-                  <AvatarImage src={profile.avatarURI} alt={profile.username} />
-                  <AvatarFallback className="text-2xl sm:text-4xl bg-gradient-to-r from-primary-500 to-primary-600 text-white">
-                    {profile.username[0]}
-                  </AvatarFallback>
-                </Avatar>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
+              <Avatar className="w-20 h-20 sm:w-32 sm:h-32">
+                <AvatarImage src={profile.avatarURI} alt={profile.username} />
+                <AvatarFallback className="text-2xl sm:text-4xl">{profile.username[0]}</AvatarFallback>
+              </Avatar>
 
-                <div className="flex-1">
-                  <h1 className="text-2xl sm:text-4xl font-bold text-white mb-1 sm:mb-2 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                    {profile.username}
-                  </h1>
-                  <div className="flex items-center space-x-2 mb-3">
-                    <span className="text-gray-400 text-sm sm:text-base">{formatAddress(address)}</span>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={copyAddress}
-                      className="text-gray-400 hover:text-primary-400 hover:bg-primary-500/10"
-                    >
-                      <Copy className="w-4 h-4" />
-                      <span className="ml-1 text-sm">{copied ? 'Copied!' : 'Copy'}</span>
-                    </Button>
-                  </div>
-                  <p className="text-gray-300 text-sm sm:text-lg mb-4 sm:mb-6 whitespace-pre-line leading-relaxed">
-                    {profile.bio}
-                  </p>
-
-                  <div className="flex flex-wrap gap-4">
-                    <div className="text-center bg-gradient-to-r from-primary-500/20 to-primary-600/20 rounded-lg p-4 backdrop-blur-sm">
-                      <p className="text-xl sm:text-3xl font-bold text-primary-400">
-                        {formatEther(profile.totalTipsReceived)}
-                      </p>
-                      <p className="text-xs sm:text-sm text-gray-400">Total Tips Received</p>
-                    </div>
-                    
-                    {/* Token breakdown badges (per-token totals) */}
-                    {profile.perTokenTotals && Object.keys(profile.perTokenTotals).length > 0 && (
-                      <div className="flex items-center space-x-2">
-                        {Object.entries(profile.perTokenTotals).map(([tokenAddr, info]) => {
-                          const decimals = typeof info.decimals === 'number' ? info.decimals : 18
-                          const amountStr = info.total ? Number(formatUnits(BigInt(info.total || '0'), decimals)).toFixed(4) : '0.0000'
-                          return (
-                            <div key={tokenAddr} className="px-3 py-2 bg-gray-800/50 backdrop-blur-sm rounded-lg text-sm text-gray-200 border border-gray-700/50">
-                              {amountStr} {info.symbol || tokenAddr.slice(0,6)}
-                            </div>
-                          )
-                        })}
-                      </div>
-                    )}
-                    
-                    <div className="text-center bg-gradient-to-r from-gray-800/20 to-gray-700/20 rounded-lg p-4 backdrop-blur-sm">
-                      <p className="text-xl sm:text-3xl font-bold text-white">{profile.tipCount}</p>
-                      <p className="text-xs sm:text-sm text-gray-400">Number of Tips</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col space-y-2 w-full sm:w-auto">
-                  {isConnected ? (
-                    <Button
-                      onClick={() => setShowTipModal(true)}
-                      className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-6 py-2 text-sm sm:text-lg orange-glow w-full sm:w-auto shadow-lg"
-                    >
-                      <Zap className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                      <span className="align-middle">Send Tip</span>
-                    </Button>
-                  ) : (
-                    <ConnectButton.Custom>
-                      {({ openConnectModal }) => (
-                        <Button
-                          onClick={openConnectModal}
-                          className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-6 py-2 text-sm sm:text-lg w-full sm:w-auto shadow-lg"
-                        >
-                          Connect to Tip
-                        </Button>
-                      )}
-                    </ConnectButton.Custom>
-                  )}
-
+              <div className="flex-1">
+                <h1 className="text-2xl sm:text-4xl font-bold text-white mb-1 sm:mb-2">{profile.username}</h1>
+                <div className="flex items-center space-x-2 mb-3">
+                  <span className="text-gray-400 text-sm sm:text-base">{formatAddress(address)}</span>
                   <Button
-                    variant="outline"
-                    onClick={() => setShowQRCode(true)}
-                    className="border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white w-full sm:w-auto backdrop-blur-sm bg-primary-500/10"
+                    size="sm"
+                    variant="ghost"
+                    onClick={copyAddress}
+                    className="text-gray-400 hover:text-primary-400"
                   >
-                    <QrCode className="w-4 h-4 mr-2" />
-                    <span className="text-sm">QR Code</span>
+                    <Copy className="w-4 h-4" />
+                    <span className="ml-1 text-sm">{copied ? 'Copied!' : 'Copy'}</span>
                   </Button>
                 </div>
+                <p className="text-gray-300 text-sm sm:text-lg mb-4 sm:mb-6 whitespace-pre-line">{profile.bio}</p>
+
+                <div className="flex flex-wrap gap-4">
+                  <div className="text-center">
+                    <p className="text-xl sm:text-3xl font-bold text-primary-400">
+                      {formatEther(profile.totalTipsReceived)}
+                    </p>
+                    <p className="text-xs sm:text-sm text-gray-400">Total Tips Received</p>
+                  </div>
+                  {/* Token breakdown badges (per-token totals) */}
+                  {profile.perTokenTotals && Object.keys(profile.perTokenTotals).length > 0 && (
+                    <div className="flex items-center space-x-2">
+                      {Object.entries(profile.perTokenTotals).map(([tokenAddr, info]) => {
+                        const decimals = typeof info.decimals === 'number' ? info.decimals : 18
+                        const amountStr = info.total ? Number(formatUnits(BigInt(info.total || '0'), decimals)).toFixed(4) : '0.0000'
+                        return (
+                          <div key={tokenAddr} className="px-2 py-1 bg-gray-800/50 rounded text-sm text-gray-200">
+                            {amountStr} {info.symbol || tokenAddr.slice(0,6)}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                  <div className="text-center">
+                    <p className="text-xl sm:text-3xl font-bold text-white">{profile.tipCount}</p>
+                    <p className="text-xs sm:text-sm text-gray-400">Number of Tips</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col space-y-2 w-full sm:w-auto">
+                {isConnected ? (
+                  <Button
+                    onClick={() => setShowTipModal(true)}
+                    className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 text-sm sm:text-lg orange-glow w-full sm:w-auto"
+                  >
+                    <Zap className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                    <span className="align-middle">Send Tip</span>
+                  </Button>
+                ) : (
+                  <ConnectButton.Custom>
+                    {({ openConnectModal }) => (
+                      <Button
+                        onClick={openConnectModal}
+                        className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 text-sm sm:text-lg w-full sm:w-auto"
+                      >
+                        Connect to Tip
+                      </Button>
+                    )}
+                  </ConnectButton.Custom>
+                )}
+
+                <Button
+                  variant="outline"
+                  onClick={() => setShowQRCode(true)}
+                  className="border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white w-full sm:w-auto"
+                >
+                  <QrCode className="w-4 h-4 mr-2" />
+                  <span className="text-sm">QR Code</span>
+                </Button>
               </div>
             </div>
           </motion.div>
@@ -354,7 +326,7 @@ export default function CreatorProfilePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <Card className="glass-card hover:glass-card-hover transition-all duration-300">
+            <Card className="glass-card">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center text-primary-400">
                   <TrendingUp className="w-5 h-5 mr-2" />
@@ -378,7 +350,7 @@ export default function CreatorProfilePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <Card className="glass-card hover:glass-card-hover transition-all duration-300">
+            <Card className="glass-card">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center text-primary-400">
                   <Calendar className="w-5 h-5 mr-2" />
@@ -403,7 +375,7 @@ export default function CreatorProfilePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <Card className="glass-card hover:glass-card-hover transition-all duration-300">
+            <Card className="glass-card">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center text-primary-400">
                   <ExternalLink className="w-5 h-5 mr-2" />
@@ -460,7 +432,7 @@ export default function CreatorProfilePage() {
                   {tips.slice(0, 10).map((tip, index) => (
                     <div
                       key={tip.id}
-                      className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg hover:bg-gray-800/50 transition-colors"
+                      className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg"
                     >
                       <div className="flex items-center space-x-4">
                         <div className="w-2 h-2 bg-primary-500 rounded-full"></div>
@@ -486,7 +458,7 @@ export default function CreatorProfilePage() {
                           href={`https://explorer.hemi.xyz/tx/${tip.id}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-primary-400 hover:text-primary-300 text-sm transition-colors"
+                          className="text-primary-400 hover:text-primary-300 text-sm"
                         >
                           View Tx
                         </a>
