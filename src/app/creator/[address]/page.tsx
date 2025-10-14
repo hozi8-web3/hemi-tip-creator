@@ -53,6 +53,13 @@ interface Tip {
   message: string
 }
 
+import { Suspense } from 'react'
+import dynamic from 'next/dynamic'
+
+const CreatorPageClient = dynamic(() => import('./CreatorPageClient'), {
+  ssr: false
+})
+
 export default function CreatorProfilePage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
