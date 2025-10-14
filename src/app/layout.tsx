@@ -28,13 +28,7 @@ export const metadata: Metadata = {
     ],
   },
   manifest: '/manifest.json',
-  themeColor: '#ff7a00',
   colorScheme: 'dark',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-  },
   openGraph: {
     type: 'website',
     locale: 'en_US',
