@@ -29,27 +29,26 @@ export const metadata: Metadata = {
   },
   manifest: '/manifest.json',
   colorScheme: 'dark',
+  metadataBase: new URL('https://hemi-tip-creator.vercel.app'),
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://tipchain.app',
+    url: 'https://hemi-tip-creator.vercel.app',
     title: 'TipChain - Onchain Creator Tipping Platform',
     description: 'Support creators with direct onchain tips on Hemi Network',
     siteName: 'TipChain',
-    images: [
-      {
-        url: '/favicon.svg',
-        width: 300,
-        height: 300,
-        alt: 'TipChain Logo',
-      },
-    ],
+    images: [{
+      url: '/og-default.png',
+      width: 1200,
+      height: 630,
+      alt: 'TipChain Logo',
+    }],
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: 'TipChain - Onchain Creator Tipping Platform',
     description: 'Support creators with direct onchain tips on Hemi Network',
-    images: ['/favicon.svg'],
+    images: ['/og-default.png'],
   },
 }
 

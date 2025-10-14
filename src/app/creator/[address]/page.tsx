@@ -1,6 +1,10 @@
-'use client'
+import { Suspense } from 'react'
+import { CreatorPageClient } from './client'
+import { headers } from 'next/headers'
 
-import { useState, useEffect } from 'react'
+// Enable streaming
+export const dynamic = 'force-dynamic'
+export const runtime = 'edge'
 import { motion } from 'framer-motion'
 import { useParams } from 'next/navigation'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
@@ -50,9 +54,11 @@ interface Tip {
 }
 
 export default function CreatorProfilePage() {
-  const params = useParams()
-  const address = params.address as string
-  const { isConnected } = useAccount()
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CreatorPageClient />
+    </Suspense>
+  )
 
   const [profile, setProfile] = useState<CreatorProfile | null>(null)
   const [tips, setTips] = useState<Tip[]>([])

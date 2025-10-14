@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://hemi-tip-creator.vercel.app'),
+  metadataBase: new URL('https://hemi-tip-creator.vercel.app'),
   title: {
     template: '%s | TipChain',
     default: 'Creator Profile | TipChain',
