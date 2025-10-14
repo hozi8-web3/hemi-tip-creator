@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: CreatorMetadataProps): Promis
   const canonicalUrl = `${baseUrl}/creator/${address}`
 
   try {
-    // Fetch creator data first to ensure we have the username
+    // Fetch creator data
     const response = await fetch(`${baseUrl}/api/creator/${address}`)
     const data = await response.json()
     const profile = data.profile
@@ -30,16 +30,6 @@ export async function generateMetadata({ params }: CreatorMetadataProps): Promis
 
     // Construct the OG image URL with query parameters
     const ogImageUrl = `${baseUrl}/api/og?username=${encodeURIComponent(profile.username)}&address=${encodeURIComponent(address)}`
-    const response = await fetch(`${baseUrl}/api/creator/${address}`)
-    const data = await response.json()
-    const profile = data.profile
-
-    if (!profile) {
-      return {
-        title: 'Creator Not Found - TipChain',
-        description: 'This creator profile does not exist or has not been created yet.',
-      }
-    }
 
     return {
       title: `${profile.username} - TipChain Creator`,
@@ -51,17 +41,11 @@ export async function generateMetadata({ params }: CreatorMetadataProps): Promis
         siteName: 'TipChain',
         images: [
           {
-            url: sharePreviewUrl,
+            url: ogImageUrl,
             width: 1200,
             height: 630,
             alt: `Support ${profile.username} on TipChain`,
-          },
-          {
-            url: `${sharePreviewUrl}?size=mobile`,
-            width: 600,
-            height: 315,
-            alt: `Support ${profile.username} on TipChain`,
-          },
+          }
         ],
         locale: 'en_US',
         type: 'profile',
@@ -70,7 +54,7 @@ export async function generateMetadata({ params }: CreatorMetadataProps): Promis
         card: 'summary_large_image',
         title: `Support ${profile.username} on TipChain`,
         description: profile.bio || `Send crypto tips to support ${profile.username}'s work`,
-        images: [sharePreviewUrl],
+        images: [ogImageUrl],
         creator: '@TipChain',
       },
       alternates: {
