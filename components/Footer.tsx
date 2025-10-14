@@ -25,7 +25,7 @@ export function Footer() {
               <span className="sr-only">GitHub</span>
             </Link>
             <Link
-              href="https://twitter.com/TipChain"
+              href="https://twitter.com/hozaifaa095"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-400 hover:text-primary-400 transition-colors"
@@ -37,7 +37,7 @@ export function Footer() {
               href="mailto:contact@tipchain.xyz"
               className="text-gray-400 hover:text-primary-400 transition-colors text-sm"
             >
-              contact@tipchain.xyz
+              contact@hemi-tipchain.xyz
             </a>
           </div>
         </div>
