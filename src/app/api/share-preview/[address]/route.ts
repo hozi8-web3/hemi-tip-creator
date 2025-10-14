@@ -74,11 +74,13 @@ export async function GET(
       }
     }
 
-    // Convert canvas to buffer
+    // Convert canvas to array buffer and then to Blob
     const buffer = canvas.toBuffer('image/png')
+    const arrayBuffer = new Uint8Array(buffer).buffer
+    const blob = new Blob([arrayBuffer], { type: 'image/png' })
 
     // Return the image
-    return new NextResponse(buffer, {
+    return new NextResponse(blob, {
       headers: {
         'Content-Type': 'image/png',
         'Cache-Control': 'public, max-age=31536000, immutable'
