@@ -13,10 +13,23 @@ export async function generateMetadata({ params }: CreatorMetadataProps): Promis
 
   // Construct absolute URLs
   const baseUrl = `${protocol}://${host}`
-  const sharePreviewUrl = `${baseUrl}/api/share-preview/${address}`
   const canonicalUrl = `${baseUrl}/creator/${address}`
 
   try {
+    // Fetch creator data first to ensure we have the username
+    const response = await fetch(`${baseUrl}/api/creator/${address}`)
+    const data = await response.json()
+    const profile = data.profile
+
+    if (!profile) {
+      return {
+        title: 'Creator Not Found - TipChain',
+        description: 'This creator profile does not exist or has not been created yet.',
+      }
+    }
+
+    // Construct the OG image URL with query parameters
+    const ogImageUrl = `${baseUrl}/api/og?username=${encodeURIComponent(profile.username)}&address=${encodeURIComponent(address)}`
     const response = await fetch(`${baseUrl}/api/creator/${address}`)
     const data = await response.json()
     const profile = data.profile
